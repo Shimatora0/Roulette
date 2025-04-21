@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ガチャルーレット</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      color: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .roulette-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 40px;
+      color: red;
+      z-index: 10;
+    }
+
+    .roulette {
+      width: 100%;
+      height: 100%;
+      border: 10px solid #aaa;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      transition: transform 3s ease-out;
+      background: white;
+    }
+
+    .segment {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: 100% 50%;
+      font-size: 1.5rem;
+    }
+
+    .segment:nth-child(1) {
+      background: #ff4d4d;
+      transform: rotate(0deg);
+    }
+
+    .segment:nth-child(2) {
+      background: #4d94ff;
+      transform: rotate(180deg);
+    }
+
+    #spinButton {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      background: #00c853;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>ガチャ引く？引かない？</h1>
+  <div class="roulette-wrapper">
+    <div class="pointer">⬇</div>
+    <div class="roulette" id="wheel">
+      <div class="segment">引く</div>
+      <div class="segment">引かない</div>
+    </div>
+  </div>
+  <button id="spinButton">回す！</button>
+  <div id="result"></div>
+
+  <!-- 音声ファイル：教会の鐘 -->
+  <audio id="gongSound" src="教会の鐘1.mp3" preload="auto"></audio>
+
+  <script>
+    const wheel = document.getElementById('wheel');
+    const spinButton = document.getElementById('spinButton');
+    const result = document.getElementById('result');
+    const gong = document.getElementById('gongSound');
+
+    let spinning = false;
+    let currentRotation = 0;
+
+    spinButton.addEventListener('click', () => {
+      if (spinning) return;
+      spinning = true;
+      result.textContent = '';
+
+      const spinAmount = 360 * 5 + Math.floor(Math.random() * 360);
+      currentRotation += spinAmount;
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        const finalDeg = currentRotation % 360;
+        const outcome = (finalDeg < 180) ? '引く' : '引かない';
+        result.textContent = `結果: ${outcome}`;
+
+        gong.currentTime = 0;
+        gong.play();
+
+        spinning = false;
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
