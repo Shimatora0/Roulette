@@ -59,9 +59,7 @@
       align-items: center;
       justify-content: center;
       transform-origin: 100% 50%;
-      font-size: 1.2rem;
-      text-align: center;
-      padding: 10px;
+      font-size: 1.5rem;
     }
 
     .segment:nth-child(1) {
@@ -71,12 +69,7 @@
 
     .segment:nth-child(2) {
       background: #4d94ff;
-      transform: rotate(120deg);
-    }
-
-    .segment:nth-child(3) {
-      background: #4dff88;
-      transform: rotate(240deg);
+      transform: rotate(180deg);
     }
 
     #spinButton {
@@ -99,20 +92,18 @@
   </style>
 </head>
 <body>
-  <h1>Roulette</h1>
-
+  <h1>ガチャルーレット</h1>
   <div class="roulette-wrapper">
     <div class="pointer">⬇</div>
     <div class="roulette" id="wheel">
       <div class="segment">引く</div>
       <div class="segment">引かない</div>
-      <div class="segment">別ゲーの<br>ガチャを引く</div>
     </div>
   </div>
-
   <button id="spinButton">回す！</button>
   <div id="result"></div>
 
+  <!-- 音声ファイル：教会の鐘 -->
   <audio id="gongSound" src="教会の鐘1.mp3" preload="auto"></audio>
 
   <script>
@@ -123,8 +114,6 @@
 
     let spinning = false;
     let currentRotation = 0;
-
-    const outcomes = ['引く', '引かない', '別ゲーのガチャを引く'];
 
     spinButton.addEventListener('click', () => {
       if (spinning) return;
@@ -137,16 +126,7 @@
 
       setTimeout(() => {
         const finalDeg = currentRotation % 360;
-        let outcome = '';
-
-        if (finalDeg < 120) {
-          outcome = outcomes[0];
-        } else if (finalDeg < 240) {
-          outcome = outcomes[1];
-        } else {
-          outcome = outcomes[2];
-        }
-
+        const outcome = (finalDeg < 180) ? '引く' : '引かない';
         result.textContent = `結果: ${outcome}`;
 
         gong.currentTime = 0;
