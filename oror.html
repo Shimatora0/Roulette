@@ -2,95 +2,88 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ガチャルーレット</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      color: #111;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      font-family: sans-serif;
+      background: #f5f5f5;
     }
+
     h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      position: absolute;
+      top: 20px;
     }
-    .roulette-wrapper {
+
+    .wheel-container {
       position: relative;
       width: 300px;
       height: 300px;
     }
+
     .pointer {
       position: absolute;
       top: -40px;
       left: 50%;
-      transform: translateX(-50%);
-      font-size: 40px;
+      transform: translateX(-50%) rotate(180deg);
+      font-size: 2.5rem;
       color: red;
       z-index: 10;
     }
-    .roulette {
+
+    svg {
       width: 100%;
       height: 100%;
-      border: 10px solid #aaa;
-      border-radius: 50%;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      transition: transform 3s ease-out;
-      background: white;
-    }
-    .segment {
-      position: absolute;
-      width: 50%;
-      height: 100%;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform-origin: 100% 50%;
-      font-size: 1.5rem;
-    }
-    .segment:nth-child(1) {
-      background: #ff4d4d;
       transform: rotate(0deg);
+      transition: transform 3s cubic-bezier(0.25, 0.8, 0.25, 1); /* ゆっくり止まるように */
+      display: block;
+      border-radius: 50%;
     }
-    .segment:nth-child(2) {
-      background: #4d94ff;
-      transform: rotate(180deg);
-    }
-    #spinButton {
-      margin-top: 30px;
+
+    button {
+      margin-top: 20px;
       padding: 10px 20px;
       font-size: 1.2rem;
-      background: #00c853;
+      background-color: #00c853;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
+
     #result {
       margin-top: 20px;
       font-size: 1.5rem;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <h1>ガチャ引く？引かない？</h1>
-  <div class="roulette-wrapper">
-    <div class="pointer">⬇</div>
-    <div class="roulette" id="wheel">
-      <div class="segment">引く</div>
-      <div class="segment">引かない</div>
-    </div>
+
+  <div class="wheel-container">
+    <div class="pointer">▲</div>
+    <svg id="wheel" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="100" fill="none" stroke="#333" stroke-width="2"/>
+      <g id="segments">
+        <path d="M100,100 L100,0 A100,100 0 0,1 200,100 Z" fill="#ff4d4d"/>
+        <path d="M100,100 L200,100 A100,100 0 0,1 100,200 Z" fill="#4d94ff"/>
+        <path d="M100,100 L100,200 A100,100 0 0,1 0,100 Z" fill="#ff4d4d"/>
+        <path d="M100,100 L0,100 A100,100 0 0,1 100,0 Z" fill="#4d94ff"/>
+      </g>
+      <text x="150" y="50" font-size="12" text-anchor="middle" fill="white">引く</text>
+      <text x="150" y="150" font-size="12" text-anchor="middle" fill="white">引かない</text>
+      <text x="50" y="150" font-size="12" text-anchor="middle" fill="white">引く</text>
+      <text x="50" y="50" font-size="12" text-anchor="middle" fill="white">引かない</text>
+    </svg>
   </div>
+
   <button id="spinButton">回す！</button>
   <div id="result"></div>
 
@@ -98,32 +91,30 @@
 
   <script>
     const wheel = document.getElementById('wheel');
-    const spinButton = document.getElementById('spinButton');
+    const button = document.getElementById('spinButton');
     const result = document.getElementById('result');
     const gong = document.getElementById('gongSound');
-
-    let spinning = false;
     let currentRotation = 0;
 
-    spinButton.addEventListener('click', () => {
-      if (spinning) return;
-      spinning = true;
-      result.textContent = '';
+    button.addEventListener('click', () => {
+      // 前回の結果を消す
+      result.textContent = "";
 
-      const spinAmount = 360 * 5 + Math.floor(Math.random() * 360);
-      currentRotation += spinAmount;
-      wheel.style.transform = `rotate(${currentRotation}deg)`;
+      const spin = 360 * 3 + Math.floor(Math.random() * 360); // 回転数
+      currentRotation += spin;
+      wheel.style.transition = 'transform 3s cubic-bezier(0.25, 0.8, 0.25, 1)'; // ゆっくり止まるように
+      wheel.style.transform = `rotate(${currentRotation}deg)`; // ルーレットを回転
 
+      // 結果を表示するまでの待機時間
       setTimeout(() => {
-        const finalDeg = currentRotation % 360;
-        const outcome = (finalDeg < 180) ? '引く' : '引かない';
-        result.textContent = `結果: ${outcome}`;
+        const deg = currentRotation % 360;
+        const index = Math.floor((deg % 360) / 90);
+        const outcomes = ['引かない', '引く', '引かない', '引く'];
+        result.textContent = `結果: ${outcomes[(4 - index) % 4]}`; // 結果の表示
 
         gong.currentTime = 0;
-        gong.play();
-
-        spinning = false;
-      }, 3000);
+        gong.play(); // 鐘の音を鳴らす
+      }, 3500); // 回転終了後に結果表示（少し待機時間を設定）
     });
   </script>
 </body>
